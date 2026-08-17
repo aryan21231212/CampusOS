@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import { connectDB } from './config/db';
 import resourceRoutes from './routes/resourceRoutes';
 import schedulerRoutes from './routes/schedulerRoutes';
+import requestRoutes from './routes/requestRoutes';
 
 dotenv.config();
 
@@ -32,6 +33,7 @@ connectDB();
 // ==========================================
 app.use('/api/resources', resourceRoutes);
 app.use('/api/scheduler', schedulerRoutes);
+app.use('/api/requests', requestRoutes);
 
 // Base Route
 app.get('/api/health', (req, res) => {

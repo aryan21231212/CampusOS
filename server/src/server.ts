@@ -5,6 +5,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { connectDB } from './config/db';
 import resourceRoutes from './routes/resourceRoutes';
+import schedulerRoutes from './routes/schedulerRoutes';
 
 dotenv.config();
 
@@ -17,15 +18,20 @@ const io = new Server(server, {
   }
 });
 
-// Middleware
+// ==========================================
+// 1. ESSENTIAL MIDDLEWARE (Must be before routes)
+// ==========================================
 app.use(cors());
 app.use(express.json());
 
 // Database Connection
 connectDB();
 
-// API Routes
+// ==========================================
+// 2. API ROUTES
+// ==========================================
 app.use('/api/resources', resourceRoutes);
+app.use('/api/scheduler', schedulerRoutes);
 
 // Base Route
 app.get('/api/health', (req, res) => {

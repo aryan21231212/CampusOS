@@ -8,6 +8,7 @@ import resourceRoutes from './routes/resourceRoutes';
 import schedulerRoutes from './routes/schedulerRoutes';
 import requestRoutes from './routes/requestRoutes';
 import kernelRoutes from './routes/kernelRoutes';
+import syncRoutes from './routes/syncRoutes';
 
 dotenv.config();
 
@@ -36,6 +37,7 @@ app.use('/api/resources', resourceRoutes);
 app.use('/api/scheduler', schedulerRoutes);
 app.use('/api/requests', requestRoutes);
 app.use('/api/kernel', kernelRoutes);
+app.use('/api/sync', syncRoutes);
 
 // Base Route
 app.get('/api/health', (req, res) => {

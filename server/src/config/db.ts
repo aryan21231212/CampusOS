@@ -1,11 +1,13 @@
+import { config } from 'dotenv';
 import mongoose from 'mongoose';
+config();
 
-export const connectDB = async (): Promise<void> => {
+export const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/campusos');
-    console.log(`[Database] MongoDB Connected: ${conn.connection.host}`);
+    const conn = await mongoose.connect(process.env.MONGO_URI || '');
+    console.log(`[Database] MongoDB Atlas Connected: ${conn.connection.host}`);
   } catch (error) {
-    console.error(`[Database Error] ${error}`);
+    console.error('[Database Error] Connection failed:', error);
     process.exit(1);
   }
 };

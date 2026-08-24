@@ -4,13 +4,18 @@ import { SchedulerVisualizer } from './components/SchedulerVisualizer';
 
 export function App() {
   return (
-    <div style={{ backgroundColor: '#090d16', minHeight: '100vh', padding: '2rem' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-        <Dashboard />
-        <SchedulerVisualizer />
-      </div>
+    <div style={{ 
+      backgroundColor: '#fcfbf9', 
+      minHeight: '100vh', 
+      width: '100vw',
+      margin: 0,
+      padding: '2rem',
+      boxSizing: 'border-box'
+    }}>
+      <Dashboard />
+      <SchedulerVisualizer />
     </div>
   );
 }
 
-export default App; 
+export default App;

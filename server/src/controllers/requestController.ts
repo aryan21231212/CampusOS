@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import { Process } from '../models/Process';
-
 import { resourceManager } from '../os/ResourceManager';
 import { io } from '../server';
 
@@ -8,19 +7,19 @@ export const submitRequest = async (req: Request, res: Response) => {
   try {
     const { processId, userId, resourceId, quantity, burstTime, deadline, priority, arrivalTime } = req.body;
 
-    // Check for existing Process ID
     const existing = await Process.findOne({ processId });
     if (existing) {
       return res.status(400).json({ success: false, error: 'Process ID already exists' });
     }
 
-    // Create process in NEW state
+    const duration = burstTime || 5;
+
     const newProcess = new Process({
       processId,
       userId,
       resourceId,
       quantity,
-      burstTime: burstTime || 5,
+      burstTime: duration,
       deadline: deadline || 50,
       priority: priority || 1,
       arrivalTime: arrivalTime || 0,
@@ -30,19 +29,35 @@ export const submitRequest = async (req: Request, res: Response) => {
 
     await newProcess.save();
 
-    // Transition state to READY
     newProcess.currentState = 'READY';
     await newProcess.save();
 
-    // Pass through Resource Manager allocation state machine
     const allocationResult = await resourceManager.requestResource(processId);
+    const finalState = allocationResult.newState || 'RUNNING';
 
-    // Broadcast real-time state update via Socket.io
     io.emit('processStateUpdate', {
       processId,
-      state: allocationResult.newState,
-      message: allocationResult.message
+      state: finalState,
+      message: allocationResult.message || `Resource ${resourceId} allocated to ${processId}.`
     });
+
+    // Auto-termination timer
+    if (finalState === 'RUNNING') {
+      setTimeout(async () => {
+        try {
+          await resourceManager.releaseResource(processId);
+          await Process.findOneAndUpdate({ processId }, { currentState: 'TERMINATED' });
+
+          io.emit('processStateUpdate', {
+            processId,
+            state: 'TERMINATED',
+            message: `Execution complete after ${duration}s. Resource ${resourceId} released back to pool.`
+          });
+        } catch (err) {
+          console.error(`[Kernel Execution Error] Failed to terminate ${processId}:`, err);
+        }
+      }, duration * 1000);
+    }
 
     res.status(201).json({
       success: true,
@@ -57,9 +72,7 @@ export const submitRequest = async (req: Request, res: Response) => {
 
 export const getRequests = async (req: Request, res: Response) => {
   try {
-    const requests = await Process.find()
-      .sort({ createdAt: -1 });
-
+    const requests = await Process.find().sort({ createdAt: -1 });
     res.status(200).json({
       success: true,
       data: requests

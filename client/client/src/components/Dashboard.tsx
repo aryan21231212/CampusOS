@@ -1,55 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import { socket } from '../services/socket';
-import { Activity, ShieldAlert, Cpu, Server, Terminal } from 'lucide-react';
+import React from 'react';
+import { ShieldAlert, Server, Terminal } from 'lucide-react';
 
-export const Dashboard: React.FC = () => {
-  const [logs, setLogs] = useState<string[]>([]);
-  const [systemStatus, setSystemStatus] = useState<string>('ONLINE');
+interface DashboardProps {
+  logs: string[];
+}
 
-  useEffect(() => {
-    socket.on('processStateUpdate', (data: { processId: string; state: string; message: string }) => {
-      setLogs((prev) => [`[${new Date().toLocaleTimeString()}] Process ${data.processId} → ${data.state}: ${data.message}`, ...prev]);
-    });
-
-    return () => {
-      socket.off('processStateUpdate');
-    };
-  }, []);
-
+export const Dashboard: React.FC<DashboardProps> = ({ logs }) => {
   return (
-    <div style={{ 
-      backgroundColor: '#fcfbf9', 
-      color: '#2d2a26', 
-      minHeight: '100vh', 
-      padding: '2.5rem', 
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' 
-    }}>
-      {/* Header */}
-      <header style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center', 
-        borderBottom: '1px solid #e7e3dc', 
-        paddingBottom: '1.25rem', 
+    <div style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif' }}>
+      
+      {/* Information Cards Grid */}
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', 
+        gap: '1.5rem', 
         marginBottom: '2rem' 
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ background: '#f4ede2', padding: '10px', borderRadius: '10px', border: '1px solid #e3dbcd' }}>
-            <Cpu color="#b45309" size={26} />
-          </div>
-          <div>
-            <h1 style={{ fontSize: '1.35rem', margin: 0, fontWeight: 700, letterSpacing: '-0.02em', color: '#1c1917' }}>CAMPUSOS</h1>
-            <span style={{ fontSize: '0.8rem', color: '#78716c', fontWeight: 500 }}>Academic Kernel Monitor</span>
-          </div>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#f4ede2', padding: '0.5rem 1rem', borderRadius: '20px', border: '1px solid #e3dbcd' }}>
-          <Activity color="#15803d" size={16} />
-          <span style={{ color: '#15803d', fontSize: '0.8rem', fontWeight: 600 }}>STATUS: {systemStatus}</span>
-        </div>
-      </header>
-
-      {/* Info Cards Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
         
         {/* Resource Inventory Card */}
         <div style={{ 
@@ -99,7 +65,7 @@ export const Dashboard: React.FC = () => {
           border: '1px solid #e7e3dc', 
           padding: '1.25rem', 
           borderRadius: '12px', 
-          height: '220px', 
+          height: '240px', 
           overflowY: 'auto', 
           fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
           fontSize: '0.85rem', 
@@ -107,9 +73,15 @@ export const Dashboard: React.FC = () => {
           lineHeight: '1.5'
         }}>
           {logs.length === 0 ? (
-            <span style={{ color: '#a8a29e' }}>Waiting for real-time process state events... Submit a resource request to see live logs.</span>
+            <span style={{ color: '#a8a29e' }}>
+              Waiting for real-time process state events... Submit a resource request in the Control Center tab to see live logs.
+            </span>
           ) : (
-            logs.map((log, idx) => <div key={idx} style={{ marginBottom: '8px', borderBottom: '1px solid #f0ede6', paddingBottom: '4px' }}>{log}</div>)
+            logs.map((log, idx) => (
+              <div key={idx} style={{ marginBottom: '8px', borderBottom: '1px solid #f0ede6', paddingBottom: '4px' }}>
+                {log}
+              </div>
+            ))
           )}
         </div>
       </div>

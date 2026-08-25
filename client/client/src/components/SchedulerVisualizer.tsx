@@ -128,7 +128,7 @@ export const SchedulerVisualizer: React.FC = () => {
             fontWeight: 500
           }}
         >
-          <RefreshCw size={14} className={fetchingDb ? 'animate-spin' : ''} /> {fetchingDb ? 'Syncing...' : 'Sync MongoDB Atlas'}
+          <RefreshCw size={14} className={fetchingDb ? 'animate-spin' : ''} /> {fetchingDb ? 'Syncing...' : 'Sync DB'}
         </button>
       </div>
 
